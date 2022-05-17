@@ -1,22 +1,22 @@
-'''
+"""
 MiDAS - Mission Driven Artificial Lift Intelligent Systems
 
-    MiDAS ESP Replacement Forecast process library
+    MiDAS ESP Replacement Forecast data processing library
 
     Last modified March 2022
 
 Permissions:
-    This code and its documentation can integrated with company
+    This code and its documentation can be integrated with company
     applications provided the unmodified code and this notice
     are included.
 
     This code cannot be copied or modified in whole or part.
-'''
+"""
 
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
-from lifelines import KaplanMeierFitter, WeibullFitter, LogNormalFitter
+from datetime import timedelta  # datetime
+from lifelines import LogNormalFitter  # KaplanMeierFitter, WeibullFitter,
 import warnings
 
 import RFconfig
@@ -26,7 +26,7 @@ date_format = RFconfig.DATE_FORMAT
 
 
 def esp_mortality_table(df_esp_db, end_data_year, number_of_buckets, end_data_month, end_data_day):
-    '''
+    """
     Dataframe field details
     - Tx(t) is the remaining lifetime of a unit aged x on January the first of year t;
         this individual will fail at age x + Tx(t) in year t + Tx(t).
@@ -41,7 +41,7 @@ def esp_mortality_table(df_esp_db, end_data_year, number_of_buckets, end_data_mo
     - Dxt is the number of failures recorded at age x during year t, from an exposure-to-risk
         ETRxt.
     - Lxt is the number of units aged x on January 1 of year t.
-    '''
+    """
 
     start_data_year = pd.to_datetime(df_esp_db['INSTALLATION DATE'], format=date_format).min().year
 
@@ -50,7 +50,7 @@ def esp_mortality_table(df_esp_db, end_data_year, number_of_buckets, end_data_mo
         year_off_set = 0
         init_forecast_month = '01'
     else:
-        year_off_set = 1  # Adjust year in case a cut off date different from year end
+        year_off_set = 1  # Adjust year in case a cutoff date different from year-end
         init_forecast_month = str(int(end_data_month) + 1)
     init_day = '01'
     stop_month = end_data_month
@@ -71,9 +71,9 @@ def esp_mortality_table(df_esp_db, end_data_year, number_of_buckets, end_data_mo
 
     for year in year_range:  # loop for every year
         esp_exposure_dict = {x: y for x, y in
-                             zip(buckets, [0 for y in year_range])}  # empty dictionary of exposures during year
+                             zip(buckets, [0 for _ in year_range])}  # empty dictionary of exposures during year
         esp_units_year_end_dict = {x: y for x, y in
-                                   zip(buckets, [0 for y in year_range])}  # empty dictionary unit at year end
+                                   zip(buckets, [0 for _ in year_range])}  # empty dictionary unit at year-end
         date_init = pd.to_datetime(init_day_month + str(year - year_off_set), format=date_format)
         date_stop = pd.to_datetime(stop_day_month + str(year), format=date_format)
 
@@ -94,20 +94,20 @@ def esp_mortality_table(df_esp_db, end_data_year, number_of_buckets, end_data_mo
 
         failed_condition = df_operating_during_year['fail_date'] <= date_stop
         df_operating_failed = df_operating_during_year[failed_condition]  # pumps failed during the year
-        df_operating_nonfailed = df_operating_during_year[~failed_condition]  # pumps not failed by year end
+        # df_operating_nonfailed = df_operating_during_year[~failed_condition]  # pumps not failed by year-end
 
         for index, row in df_operating_during_year.iterrows():  # Calculate exposures
             if row.inst_date >= date_init:  # installed during the year
                 days_at_year_init = 0
-                if row.fail_date <= date_stop:  # failed before year end
+                if row.fail_date <= date_stop:  # failed before year-end
                     days_during_year = (row.fail_date - row.inst_date).days
-                else:  # failed after year end
+                else:  # failed after year-end
                     days_during_year = (date_stop - row.inst_date).days
             else:  # installed prior to year init
                 days_at_year_init = (date_init - row.inst_date).days
-                if row.fail_date <= date_stop:  # failed before year end
+                if row.fail_date <= date_stop:  # failed before year-end
                     days_during_year = (row.fail_date - date_init).days
-                else:  # failed after year end
+                else:  # failed after year-end
                     days_during_year = (date_stop - date_init).days
 
             days_at_year_end = days_at_year_init + days_during_year + 1
@@ -164,10 +164,10 @@ def esp_mortality_table(df_esp_db, end_data_year, number_of_buckets, end_data_mo
             }, index=[0])
             df_esp_mortality = df_esp_mortality.append(df_esp_mortality_row, ignore_index=True)
 
-    df_mtbp = calculate_mtbp(df_esp_db,start_data_year,end_data_year, stop_day_month)
+    df_mtbp = calculate_mtbp(df_esp_db, start_data_year, end_data_year, stop_day_month)
 
     # Add mtbp to mortality table
-    mtbf_columns= pd.DataFrame()
+    mtbf_columns = pd.DataFrame()
     for i in range(start_data_year, end_data_year + 1):
         mtbf_cols = df_mtbp.loc[df_mtbp.index.repeat(number_of_buckets)].reset_index(drop=True)
         mtbf_columns = mtbf_columns.append(mtbf_cols, ignore_index=True)
@@ -179,13 +179,14 @@ def esp_mortality_table(df_esp_db, end_data_year, number_of_buckets, end_data_mo
     return df_esp_mortality
 
 
-def calculate_mtbp(df_esp_db,start_data_year,end_data_year, stop_day_month):
+def calculate_mtbp(df_esp_db, start_data_year, end_data_year, stop_day_month):
     # Add MTBF Data
     df_life_data = df_esp_db[['inst_date', 'fail_date', 'STATUS']].copy()
 
     wait_years = 3
     df_mtbp = pd.DataFrame()
     for year in range(start_data_year, end_data_year + 1):  # loop for every year
+        MTBP = 0
         if year > start_data_year + wait_years:
             date_stop = pd.to_datetime(stop_day_month + str(year), format=date_format)
             existing_year_end_condition = (df_life_data['inst_date'] <= date_stop)

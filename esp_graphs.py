@@ -6,17 +6,17 @@ MiDAS - Mission Driven Artificial Lift Intelligent Systems
     Last modified March 2022
 
 Permissions:
-    This code and its documentation can integrated with company
+    This code and its documentation can be integrated with company
     applications provided the unmodified code and this notice
     are included.
 
     This code cannot be copied or modified in whole or part.
 """
 
-import pandas as pd
+# import pandas as pd
 import numpy as np
-from dash import Input, Output, State, dcc, html
-from datetime import date
+# from dash import Input, Output, State, dcc, html
+# from datetime import date
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
@@ -41,7 +41,7 @@ def pulls_graph(df, year_range, log_scale):
     fig = px.bar(df_fig, x='Year', y='WELL', color='STATUS',
                  # log_x=True, size='WELL', size_max=60,
                  # height=500, width=1100, template='simple_white',
-                 #log_y=log_scale,
+                 # log_y=log_scale,
                  template=midas_template,
                  hover_name='STATUS',
                  hover_data={
@@ -72,7 +72,7 @@ def pulls_age_relative(df, year_range, log_scale):
     df_fig = df_fig.sort_values(['Year', 'Age3'], ascending=(True, True))  # sort categories
     num_groups = len(df_fig.Age2.unique())
     total_year = []
-    for year in range(year_range[0], year_range[1]):
+    for year in range(year_range[0], year_range[1] + 1):
         total_dx = df_fig[df_fig.Year == year].dx.sum()
 
         total_year.extend(np.repeat(total_dx, num_groups))
@@ -82,7 +82,7 @@ def pulls_age_relative(df, year_range, log_scale):
                  # log_x=True,  # log scale
                  # size='XXX', size_max=60,
                  # height=500, width=1100, template='simple_white',  # dimensions and template
-                 #log_y=log_scale,
+                 # log_y=log_scale,
                  template=midas_template,
                  hover_name='Age2',
                  hover_data={
@@ -115,14 +115,14 @@ def pulls_age_relative(df, year_range, log_scale):
 
 def pulls_age_absolute(df, year_range, log_scale):
     df_fig = df[(df.Year >= year_range[0]) & (df.Year <= year_range[1])]  # filter year range
-    df_fig = df_fig[['Year', 'dx', 'Age2', 'Age3']]  # select colums
+    df_fig = df_fig[['Year', 'dx', 'Age2', 'Age3']]  # select columns
     df_fig = df_fig.sort_values(['Year', 'Age3'], ascending=(True, True))  # sort categories
 
     fig = px.bar(df_fig, x='Year', y='dx', color='Age2',
                  # log_x=True,  # log scale
                  # size='XXX', size_max=60,
                  # height=500, width=1100,
-                 #log_y=log_scale,
+                 # log_y=log_scale,
                  template=midas_template,
                  hover_name='Age2',
                  hover_data={
@@ -154,7 +154,7 @@ def operating_absolute(df, year_range, log_scale):
                  # log_x=True,  # log scale
                  # size='XXX', size_max=60,
                  # height=500, width=1100, template='simple_white',  # dimensions and template
-                 #log_y=log_scale,
+                 # log_y=log_scale,
                  template=midas_template,
                  hover_name='Age2',
                  hover_data={
@@ -184,17 +184,21 @@ def operating_relative(df, year_range, log_scale):
 
     num_groups = len(df_fig.Age2.unique())
     total_year = []
-    for year in range(year_range[0], year_range[1]):
+    for year in range(year_range[0], year_range[1] + 1 ):
+        print(year)
         total_units_year_start = df_fig[df_fig.Year == year].units_year_start.sum()
-
         total_year.extend(np.repeat(total_units_year_start, num_groups))
+    print(df_fig.units_year_start.shape[0])
+    print(len(total_year))
+    print(year_range)
+
     df_fig = df_fig.assign(units_year_start_pc=df_fig.units_year_start / total_year)
 
     fig = px.bar(df_fig, x='Year', y='units_year_start_pc', color='Age2',
                  # log_x=True,  # log scale
                  # size='XXX', size_max=60,
                  # height=500, width=1100, template='simple_white',  # dimensions and template
-                 #log_y=log_scale,
+                 # log_y=log_scale,
                  template=midas_template,
                  hover_name='Age2',
                  hover_data={
@@ -218,7 +222,6 @@ def operating_relative(df, year_range, log_scale):
     return fig
 
 
-
 def new_wells_graph(df, year_range, log_scale):
     df_fig = df[(df.Year >= year_range[0]) & (df.Year <= year_range[1])]  # filter year range
     df_fig = df_fig[['Year', 'new_wells', 'Age2']]
@@ -227,7 +230,7 @@ def new_wells_graph(df, year_range, log_scale):
                  # log_x=True,  # log scale
                  # size='XXX', size_max=60,
                  # height=500, width=1100, template='simple_white',  # dimensions and template
-                 #log_y=log_scale,
+                 # log_y=log_scale,
                  template=midas_template,
                  hover_name='Age2',
                  hover_data={
@@ -264,7 +267,7 @@ def pull_rate_group(df, year_range, log_scale):
                   hover_data={
                       'Age2': False,
                       'Year': False,
-                      'mx' : ':.2f'
+                      'mx': ':.2f'
                   },
                   title='Equipment Pull Rate by age Group',
                   labels=dict(
@@ -283,14 +286,14 @@ def pull_rate_group(df, year_range, log_scale):
 
 
 def k_forecast(df, year_range, log_scale):
-    df_filtered = df[(df.Year >= year_range[0]) & (df.Year <= year_range[1]+years_to_forecast)]  # filter year range
+    df_filtered = df[(df.Year >= year_range[0]) & (df.Year <= year_range[1] + years_to_forecast)]  # filter year range
 
     df_fig_hist = df_filtered[df_filtered['scenario'].isin(['current'])]
     df_fig_hist = df_fig_hist[['Year', 'khat']]
     df_fig_hist = df_fig_hist.groupby(by=['Year']).mean().reset_index()
 
     df_fig_mean = df_filtered[df_filtered['scenario'].isin(['mean'])]
-    df_fig_mean = df_fig_mean[['Year',  'khat']]
+    df_fig_mean = df_fig_mean[['Year', 'khat']]
     df_fig_mean = df_fig_mean.groupby(by=['Year']).mean().reset_index()
 
     df_fig_upper = df_filtered[df_filtered['scenario'].isin(['ci_upper'])]
@@ -302,14 +305,14 @@ def k_forecast(df, year_range, log_scale):
     df_fig_lower = df_fig_lower.groupby(by=['Year']).mean().reset_index()
 
     upper_ci = int((1 - confidence_interval) * 100)
-    lower_ci = int((confidence_interval) * 100)
+    lower_ci = int(confidence_interval * 100)
 
     fig = go.Figure()  # make_subplots(specs=[[{'secondary_y': False}]])
 
     fig.add_traces(
         [
             go.Scatter(name='Fitted', x=df_fig_hist['Year'], y=df_fig_hist['khat']),
-            #go.Bar(name='Mean Forecast', x=df_fig_mean['Year'], y=df_fig_mean['dxhat']),
+            # go.Bar(name='Mean Forecast', x=df_fig_mean['Year'], y=df_fig_mean['dxhat']),
             go.Scatter(name='P' + str(upper_ci), x=df_fig_upper['Year'], y=df_fig_upper['khat_ci_upper']),
             go.Scatter(name='P50', x=df_fig_mean['Year'], y=df_fig_mean['khat']),
             go.Scatter(name='P' + str(lower_ci), x=df_fig_lower['Year'], y=df_fig_lower['khat_ci_lower']),
@@ -317,8 +320,8 @@ def k_forecast(df, year_range, log_scale):
     )
 
     fig.update_layout(
-                  template=midas_template,
-                  title='<i>k</i> Factor - Change Factor By Year',
+        template=midas_template,
+        title='<i>k</i> Factor - Change Factor By Year',
     )
 
     fig.layout.yaxis.title = '<i>k</i> factor'
@@ -333,10 +336,11 @@ def k_forecast(df, year_range, log_scale):
                       )
     return fig
 
+
 def mtbp_graph(df, year_range, log_scale):
     df_fig = df[(df.Year >= year_range[0]) & (df.Year <= year_range[1])]  # filter year range
     df_fig = df_fig[['Year', 'MTBP', 'PR']]
-    df_fig = df_fig.assign(PR1000=df_fig['PR']*365*1000)
+    df_fig = df_fig.assign(PR1000=df_fig['PR'] * 365 * 1000)
     df_fig.PR1000 = df_fig.PR1000.round(0)
     df_fig = df_fig.assign(MTBPYear=df_fig['MTBP'] / 365)
     df_fig.MTBPYear = df_fig.MTBPYear.round(1)
@@ -353,12 +357,12 @@ def mtbp_graph(df, year_range, log_scale):
     fig.layout.yaxis.title = 'MTBP (Years)'
     fig.layout.yaxis2.title = 'Pulls per 1000 operating Units'
     fig.update_layout(
-                  template=midas_template,
-                  # hover_name='Year',
-                  # hover_data={
-                  #     'Year': False,
-                  # },
-                  title='Statistical Mean Time Between Pulls and Pull Rate',
+        template=midas_template,
+        # hover_name='Year',
+        # hover_data={
+        #     'Year': False,
+        # },
+        title='Statistical Mean Time Between Pulls and Pull Rate',
     )
     fig.update_xaxes(type='category')
     fig.update_layout(font_family='Raleway, Droid Sans, Balto ,Arial',
@@ -366,7 +370,7 @@ def mtbp_graph(df, year_range, log_scale):
                       # 'Droid Serif', 'Droid Sans Mono', 'Gravitas One',
                       # 'Old Standard TT', 'Open Sans', 'Overpass', 'PT Sans Narrow',
                       # 'Raleway', 'Times New Roman'.
-                      #legend=dict(orientation='h', title='Age Group', y=1.1, x=1, xanchor='right', yanchor='bottom')
+                      # legend=dict(orientation='h', title='Age Group', y=1.1, x=1, xanchor='right', yanchor='bottom')
                       )
     return fig
 
@@ -377,22 +381,22 @@ def a_factor(df, year_range, log_scale):
     df_fig = df_fig.groupby(by=['Age2']).mean().reset_index()
 
     fig = px.bar(df_fig, x='Age2', y='a', color='Age2',
-                  # log_x=True,  # log scale
-                  # size='XXX', size_max=60,
-                  # height=500, width=1100, template='simple_white',  # dimensions and template
-                  # log_y=log_scale,
+                 # log_x=True,  # log scale
+                 # size='XXX', size_max=60,
+                 # height=500, width=1100, template='simple_white',  # dimensions and template
+                 # log_y=log_scale,
                  hover_name='Age2',
                  hover_data={
                      'Age2': False,
                      'a': ':.2f'
                  },
 
-                  template=midas_template,
-                  title='<i>a</i> factor - Log Mean by Age Group',
-                  labels=dict(
-                      a='<i>a</i> factor',
-                      Age2='Age Group')
-                  )
+                 template=midas_template,
+                 title='<i>a</i> factor - Log Mean by Age Group',
+                 labels=dict(
+                     a='<i>a</i> factor',
+                     Age2='Age Group')
+                 )
     fig.update_xaxes(type='category')
     fig.update_layout(font_family='Raleway, Droid Sans, Balto ,Arial',
                       # 'Arial', 'Balto', 'Courier New', 'Droid Sans',
@@ -410,21 +414,21 @@ def b_factor(df, year_range, log_scale):
     df_fig = df_fig.groupby(by=['Age2']).mean().reset_index()
 
     fig = px.bar(df_fig, x='Age2', y='b', color='Age2',
-                  # log_x=True,  # log scale
-                  # size='XXX', size_max=60,
-                  # height=500, width=1100, template='simple_white',  # dimensions and template
-                  log_y=log_scale,
-                  hover_name='Age2',
-                  hover_data={
+                 # log_x=True,  # log scale
+                 # size='XXX', size_max=60,
+                 # height=500, width=1100, template='simple_white',  # dimensions and template
+                 log_y=log_scale,
+                 hover_name='Age2',
+                 hover_data={
                      'Age2': False,
                      'b': ':.2f'
-                  },
+                 },
                  template=midas_template,
-                  title='<i>b</i> factor - Change Factor by Age Group',
-                  labels=dict(
-                      b='<i>b</i> factor',
-                      Age2='Age Group')
-                  )
+                 title='<i>b</i> factor - Change Factor by Age Group',
+                 labels=dict(
+                     b='<i>b</i> factor',
+                     Age2='Age Group')
+                 )
     fig.update_xaxes(type='category')
     fig.update_layout(font_family='Raleway, Droid Sans, Balto ,Arial',
                       # 'Arial', 'Balto', 'Courier New', 'Droid Sans',
@@ -437,27 +441,26 @@ def b_factor(df, year_range, log_scale):
 
 
 def replacement_forecast_graph(df, year_range, log_scale):
-    df_filtered = df[(df.Year >= year_range[0]) & (df.Year <= year_range[1]+years_to_forecast)]  # filter year range
+    df_filtered = df[(df.Year >= year_range[0]) & (df.Year <= year_range[1] + years_to_forecast)]  # filter year range
 
     df_fig_hist = df_filtered[df_filtered['scenario'].isin(['current'])]
     df_fig_hist = df_fig_hist[['Year', 'dx']]
     df_fig_hist = df_fig_hist.groupby(by=['Year']).sum().astype(int).reset_index()
 
     df_fig_mean = df_filtered[df_filtered['scenario'].isin(['mean'])]
-    df_fig_mean = df_fig_mean[['Year',  'dxhat']]
+    df_fig_mean = df_fig_mean[['Year', 'dxhat']]
     df_fig_mean = df_fig_mean.groupby(by=['Year']).sum().astype(int).reset_index()
 
     df_fig_upper = df_filtered[df_filtered['scenario'].isin(['ci_upper'])]
     df_fig_upper = df_fig_upper[['Year', 'dxhat']]
     df_fig_upper = df_fig_upper.groupby(by=['Year']).sum().astype(int).reset_index()
 
-
     df_fig_lower = df_filtered[df_filtered['scenario'].isin(['ci_lower'])]
     df_fig_lower = df_fig_lower[['Year', 'dxhat']]
     df_fig_lower = df_fig_lower.groupby(by=['Year']).sum().astype(int).reset_index()
 
     upper_ci = int((1 - confidence_interval) * 100)
-    lower_ci = int((confidence_interval) * 100)
+    lower_ci = int(confidence_interval * 100)
 
     #   Correct for interval crossing
     dxhatc = df_fig_mean['dxhat']
@@ -471,7 +474,7 @@ def replacement_forecast_graph(df, year_range, log_scale):
     fig.add_traces(
         [
             go.Bar(name='History', x=df_fig_hist['Year'], y=df_fig_hist['dx']),
-            #go.Bar(name='Mean Forecast', x=df_fig_mean['Year'], y=df_fig_mean['dxhat']),
+            # go.Bar(name='Mean Forecast', x=df_fig_mean['Year'], y=df_fig_mean['dxhat']),
             go.Scatter(name='P' + str(upper_ci), x=df_fig_upper['Year'], y=df_fig_upper['dxhat']),
             go.Scatter(name='P50', x=df_fig_mean['Year'], y=df_fig_mean['dxhat']),
             go.Scatter(name='P' + str(lower_ci), x=df_fig_lower['Year'], y=df_fig_lower['dxhat']),
@@ -479,8 +482,8 @@ def replacement_forecast_graph(df, year_range, log_scale):
     )
 
     fig.update_layout(
-                  template=midas_template,
-                  title='Replacement Forecast',
+        template=midas_template,
+        title='Replacement Forecast',
     )
 
     fig.layout.yaxis.title = 'Number of Replacements'
@@ -497,14 +500,14 @@ def replacement_forecast_graph(df, year_range, log_scale):
 
 
 def replacement_forecast_table(df, year_range, log_scale):
-    df_filtered = df[(df.Year >= year_range[0]) & (df.Year <= year_range[1]+years_to_forecast)]  # filter year range
+    df_filtered = df[(df.Year >= year_range[0]) & (df.Year <= year_range[1] + years_to_forecast)]  # filter year range
 
     df_fig_hist = df_filtered[df_filtered['scenario'].isin(['current'])]
     df_fig_hist = df_fig_hist[['Year', 'dx']]
     df_fig_hist = df_fig_hist.groupby(by=['Year']).sum().astype(int).reset_index()
 
     df_fig_mean = df_filtered[df_filtered['scenario'].isin(['mean'])]
-    df_fig_mean = df_fig_mean[['Year',  'dxhat']]
+    df_fig_mean = df_fig_mean[['Year', 'dxhat']]
     df_fig_mean = df_fig_mean.groupby(by=['Year']).sum().astype(int).reset_index()
 
     df_fig_upper = df_filtered[df_filtered['scenario'].isin(['ci_upper'])]
@@ -516,7 +519,7 @@ def replacement_forecast_table(df, year_range, log_scale):
     df_fig_lower = df_fig_lower.groupby(by=['Year']).sum().astype(int).reset_index()
 
     upper_ci = int((1 - confidence_interval) * 100)
-    lower_ci = int((confidence_interval) * 100)
+    lower_ci = int(confidence_interval * 100)
 
     #   Correct for interval crossing
     dxhatc = df_fig_mean['dxhat']
@@ -525,16 +528,16 @@ def replacement_forecast_table(df, year_range, log_scale):
     df_fig_lower['dxhat'] = np.where(dxhatc_ll > dxhatc, dxhatc, dxhatc_ll)
     df_fig_upper['dxhat'] = np.where(dxhatc_up < dxhatc, dxhatc, dxhatc_up)
 
-    upper_ci_str= 'P'+ str(upper_ci)
-    lower_ci_str = 'P'+ str(lower_ci)
+    upper_ci_str = 'P' + str(upper_ci)
+    lower_ci_str = 'P' + str(lower_ci)
 
     df_fig_hist['history'] = df_fig_hist['dx']
     df_fig_mean['P50'] = df_fig_mean['dxhat']
     df_fig_upper[upper_ci_str] = df_fig_upper['dxhat']
     df_fig_lower[lower_ci_str] = df_fig_lower['dxhat']
 
-    #df_table = df_fig_hist.join(df_fig_mean[['Year', 'P50']])
-    df_table = df_fig_upper[['Year',upper_ci_str]].join(df_fig_mean['P50'])
+    # df_table = df_fig_hist.join(df_fig_mean[['Year', 'P50']])
+    df_table = df_fig_upper[['Year', upper_ci_str]].join(df_fig_mean['P50'])
     df_table = df_table.join(df_fig_lower[lower_ci_str])
 
     df_table_t = df_table.set_index('Year').T
@@ -551,18 +554,18 @@ def replacement_forecast_table(df, year_range, log_scale):
                 header=dict(values=headers,
                             font=dict(size=12),
                             align=['left', 'center'],
-                            #fill_color='paleturquoise',
+                            # fill_color='paleturquoise',
                             ),
                 cells=dict(values=cell_values,
                            align=['left', 'center'],
-                           #fill_color='lavender',
+                           # fill_color='lavender',
                            ))
         ]
     )
 
     fig.update_layout(
-                  template=midas_template,
-                  title='Replacement Forecast Table',
+        template=midas_template,
+        title='Replacement Forecast Table',
     )
     #
     # fig.layout.yaxis.title = 'Number of Replacements'
@@ -576,6 +579,3 @@ def replacement_forecast_table(df, year_range, log_scale):
     #                   # legend=dict(orientation='h', title='Age Group', y=1.1, x=1, xanchor='right', yanchor='bottom')
     #                   )
     return fig
-
-
-

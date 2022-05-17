@@ -8,7 +8,7 @@ MiDAS - Mission Driven Artificial Lift Intelligent Systems
     Last modified March 2022
 
 Permissions:
-    This code and its documentation can integrated with company
+    This code and its documentation can be integrated with company
     applications provided the unmodified code and this notice
     are included.
 
@@ -32,4 +32,3 @@ BEST_ARIMA_METHOD = 'MSE'
 P_VALUES = range(0, 3)
 D_VALUES = range(0, 3)
 Q_VALUES = range(0, 2)
-

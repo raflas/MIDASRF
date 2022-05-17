@@ -1,12 +1,12 @@
 """
 MiDAS - Mission Driven Artificial Lift Intelligent Systems
 
-    MiDAS ESP Replacement Forecast User Interfece
+    MiDAS ESP Replacement Forecast User Interface
 
     Last modified March 2022
 
 Permissions:
-    This code and its documentation can integrated with company
+    This code and its documentation can be integrated with company
     applications provided the unmodified code and this notice
     are included.
 
@@ -20,11 +20,11 @@ import dash_bootstrap_components as dbc
 from dash import dash_table
 import dash_daq as daq
 import pandas as pd
-import numpy as np
+#  import numpy as np
 from dash import Input, Output, State, dcc, html
 from datetime import date
-import plotly.express as px
-import time
+#  import plotly.express as px
+#  import time
 from dash.exceptions import PreventUpdate
 import base64
 import io
@@ -41,10 +41,10 @@ years_to_forecast = RFconfig.YEARS_TO_FORECAST
 new_well_list_file = RFconfig.NEW_WELL_LIST_FILE
 
 # default list of new wells
-df_new_wells = pd.DataFrame([{'Year': x, 'NewWells': 100} for x in range (1980, 2100)])
+df_new_wells = pd.DataFrame([{'Year': x, 'NewWells': 100} for x in range(1980, 2100)])
 df_new_wells.set_index('Year', inplace=True)
 
-# read customized list of news if it exists
+# read customized list of new wells if it exists
 if exists(new_well_list_file):
     cust_new_wells_df = pd.read_csv(new_well_list_file)
 else:
@@ -76,8 +76,6 @@ if current_month < 8:
     current_year = date.today().year - 1
 else:
     current_year = date.today()
-
-
 
 # dbc.Spinner(,size='lg', color='primary', type='border', fullscreen=True)
 
@@ -112,8 +110,8 @@ exp_graph_panel = dbc.Row(
         ),
         dbc.Row(
             [
-                    dbc.Col(dbc.Label('Log Scale:')),
-                    dbc.Col(daq.BooleanSwitch(id='sw_log_scale', on=False)),
+                dbc.Col(dbc.Label('Log Scale:')),
+                dbc.Col(daq.BooleanSwitch(id='sw_log_scale', on=False)),
             ], align='start', style={'width': '28%'}
         ),
         html.Br(),
@@ -157,8 +155,8 @@ forecast_graph_panel = dbc.Row(
         ),
         dbc.Row(
             [
-                    dbc.Col(dbc.Label('Log Scale:')),
-                    dbc.Col(daq.BooleanSwitch(id='sw_log_scale2', on=False)),
+                dbc.Col(dbc.Label('Log Scale:')),
+                dbc.Col(daq.BooleanSwitch(id='sw_log_scale2', on=False)),
             ], align='start', style={'width': '28%'}
         ),
         html.Br(),
@@ -167,21 +165,21 @@ forecast_graph_panel = dbc.Row(
 )
 
 new_wells_table = dash_table.DataTable(
-    id = 'table_new_wells',
-    data = [
-            {'Year':2000, 'NewWells': 10},
-            {'Year':2001, 'NewWells': 10},
-            {'Year':2002, 'NewWells': 10}],
-    columns= [{'id':'Year', 'name': 'Year', 'editable': False},
-              {'id':'NewWells', 'name': 'New Wells', 'editable': True}],
+    id='table_new_wells',
+    data=[
+        {'Year': 2000, 'NewWells': 10},
+        {'Year': 2001, 'NewWells': 10},
+        {'Year': 2002, 'NewWells': 10}],
+    columns=[{'id': 'Year', 'name': 'Year', 'editable': False},
+             {'id': 'NewWells', 'name': 'New Wells', 'editable': True}],
     style_table={'overflowX': 'auto'},
     style_cell={
         'textAlign': 'center',
         'color': 'whitesmoke',
         'backgroundColor': 'lightsteelblue',
-        #'height': 'auto',
+        # 'height': 'auto',
         # 'color': 'black',
-        #'border': '1px solid black',
+        # 'border': '1px solid black',
     },
     style_header={
         'textAlign': 'center',
@@ -191,30 +189,30 @@ new_wells_table = dash_table.DataTable(
         'fontWeight': 'bold'
     },
     style_data_conditional=[
-            {
-                'if': {
-                    'column_editable': True  # True | False
-                },
-                'backgroundColor': 'steelblue',
-                #'cursor': 'not-allowed'
+        {
+            'if': {
+                'column_editable': True  # True | False
             },
-            {
-                'if': {
-                    'column_editable': False  # True | False
-                },
-                'cursor': 'not-allowed'
+            'backgroundColor': 'steelblue',
+            # 'cursor': 'not-allowed'
+        },
+        {
+            'if': {
+                'column_editable': False  # True | False
             },
-            # {'if': {'row_index': 'even'},
-            # 'backgroundColor': 'rgb(220, 220, 220)'},
-            {'if': {
-                'state': 'active'  # 'active' | 'selected'
-            },
-            'color' : 'black',
+            'cursor': 'not-allowed'
+        },
+        # {'if': {'row_index': 'even'},
+        # 'backgroundColor': 'rgb(220, 220, 220)'},
+        {'if': {
+            'state': 'active'  # 'active' | 'selected'
+        },
+            'color': 'black',
             'backgroundColor': 'white',
             'border': '1px solid red'}
     ],
 
-    #editable=True,
+    # editable=True,
     # css= [{
     #     'selector' : 'td.cell--selected, td.focused',
     #     'rule': 'background-color: rgb(41, 56, 55) !important;'
@@ -236,12 +234,11 @@ forecast_settings_panel = dbc.Row(
         html.Hr(),
         dbc.Row(dbc.Button('Forecast', id='bt_run_forecast', color='primary', className='mb-3', n_clicks=0),
                 justify='start', style={'width': '20%'}
-        ),
+                ),
         dbc.Spinner(dcc.Store(id='sto_forecast_table'),
                     size='md', color='primary', type='border', fullscreen=False)
     ]
 )
-
 
 upload_settings_panel = dbc.Row(
     [
@@ -278,31 +275,29 @@ upload_settings_panel = dbc.Row(
     ]
 )
 
-
 forecast_accordion = dbc.Accordion(
     [
         dbc.AccordionItem(
             [
-                dbc.Collapse(forecast_settings_panel,id='collapse_forecast_controls',is_open=False,),
+                dbc.Collapse(forecast_settings_panel, id='collapse_forecast_controls', is_open=False, ),
             ],
             title='Forecast Settings',
-            item_id= 'acc_forecast_settings',
+            item_id='acc_forecast_settings',
         ),
         dbc.AccordionItem(
             [
                 dbc.Collapse(
                     [
                         dbc.Spinner(forecast_graph_panel, size='md', color='primary', type='border', fullscreen=False),
-                    ], id='collapse_forecast_graph', is_open=False )
+                    ], id='collapse_forecast_graph', is_open=False)
             ],
-            item_id= 'acc_forecast_results',
+            item_id='acc_forecast_results',
             title='Forecast Results'
         )
     ],
     id='acc_forecast',
     active_item='acc_forecast_settings',
 )
-
 
 data_explore_accordion = dbc.Accordion(
     [
@@ -311,9 +306,9 @@ data_explore_accordion = dbc.Accordion(
                 dbc.Collapse(
                     [
                         dbc.Spinner(exp_graph_panel, size='md', color='primary', type='border', fullscreen=False),
-                    ], id='collapse_exp_graph_panel', is_open=False )
+                    ], id='collapse_exp_graph_panel', is_open=False)
             ],
-            item_id= 'acc_exp_graph',
+            item_id='acc_exp_graph',
             title='Graphs'
         ),
         dbc.AccordionItem(
@@ -335,11 +330,10 @@ data_explore_accordion = dbc.Accordion(
     active_item='acc_upload_database',
 )
 
-
 tabs = dbc.Tabs(
     [
         dbc.Tab(data_explore_accordion, label='Data Exploration', id='graph_tab', tab_id='graph', disabled=False),
-        dbc.Tab( forecast_accordion, label='Forecasting', id='forecast_tab', tab_id='forecast', disabled=False),
+        dbc.Tab(forecast_accordion, label='Forecasting', id='forecast_tab', tab_id='forecast', disabled=False),
     ], id='tabs_'
 )
 
@@ -347,7 +341,6 @@ app.layout = dbc.Container([
     navbar,
     tabs
 ], fluid=True)
-
 
 
 @app.callback(
@@ -359,11 +352,10 @@ app.layout = dbc.Container([
     ],
     [
         Input('upload_esp_database', 'contents'),
-        State('upload_esp_database', 'filename'),
         State('dd_month', 'value'),
         State('dd_year', 'value'),
     ])
-def read_esp_database(contents, filename, begin_forecast_month_name, begin_forecast_year):
+def read_esp_database(contents, begin_forecast_month_name, begin_forecast_year):
     if contents is not None:
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
@@ -378,9 +370,8 @@ def read_esp_database(contents, filename, begin_forecast_month_name, begin_forec
                 process_rul_life_data(df_raw_esp_database, begin_forecast_month_name, begin_forecast_year,
                                       number_of_buckets)
 
-            mx_file_name = 'test_mortality_table.csv'
-            df_esp_mortality_table.to_csv(mx_file_name , index=False)
-
+            #  mx_file_name = 'test_mortality_table.csv'
+            #  df_esp_mortality_table.to_csv(mx_file_name, index=False)
 
             json_esp_database = df_esp_database.to_json(date_format='iso', orient='split')
             json_esp_mortality_table = df_esp_mortality_table.to_json(date_format='iso', orient='split')
@@ -401,12 +392,12 @@ def get_db_details(df_esp_database):
     running = df_esp_database[df_esp_database['STATUS'] == 'RUNNING'].shape[0]
 
     table_body = html.Tbody([
-                html.Tr([html.Td('Number of ESPs   '), html.Td(totalesps)]),
-                html.Tr([html.Td('First installation  '), html.Td(first_installation_year)]),
-                html.Tr([html.Td('Last installation   '), html.Td(last_installation_year)]),
-                html.Tr([html.Td('Failures   '), html.Td(failures)]),
-                html.Tr([html.Td('Non failures   '), html.Td(nonfailures, )]),
-                html.Tr([html.Td('Currently Running   '), html.Td(running)]),
+        html.Tr([html.Td('Number of ESPs   '), html.Td(totalesps)]),
+        html.Tr([html.Td('First installation  '), html.Td(first_installation_year)]),
+        html.Tr([html.Td('Last installation   '), html.Td(last_installation_year)]),
+        html.Tr([html.Td('Failures   '), html.Td(failures)]),
+        html.Tr([html.Td('Non failures   '), html.Td(nonfailures, )]),
+        html.Tr([html.Td('Currently Running   '), html.Td(running)]),
     ]),
     db_info_table = dbc.Table(table_body, bordered=True)
 
@@ -430,28 +421,29 @@ def get_db_details(df_esp_database):
     [
         Input('sto_esp_database', 'data'),
         Input('sto_esp_mortality_table', 'data'),
+        State('dd_year', 'value')
     ],
 )
-def update_controls(esp_data, mx_data):
+def update_controls(esp_data, mx_data, end_year):
     if esp_data is not None:
         df_esp_data = pd.read_json(esp_data, orient='split')
         df_mx_data = pd.read_json(mx_data, orient='split')
-        years = df_esp_data['Year'].unique()
+        #  years = df_esp_data['Year'].unique()
         rs_exp_minvalue = df_esp_data['Year'].min()
-        rs_exp_maxvalue = df_esp_data['Year'].max()
+        rs_exp_maxvalue = end_year
         rs_exp_value = float(rs_exp_minvalue), float(rs_exp_maxvalue)
         rs_for_minvalue, rs_for_maxvalue, rs_for_value = update_forecast_slider(df_mx_data)
 
         file_details = html.Div(get_db_details(df_esp_data))
         active_tab = 'graph'
-        active_accordion_item= 'acc_exp_graph'
+        active_accordion_item = 'acc_exp_graph'
         forecast_controls_open = True
         exp_graph_panel_open = True
     else:
         raise PreventUpdate
-    return active_tab, exp_graph_panel_open, forecast_controls_open,  \
-           rs_exp_minvalue,  rs_exp_maxvalue,  rs_exp_value, \
-           rs_for_minvalue, rs_for_maxvalue, rs_for_value,\
+    return active_tab, exp_graph_panel_open, forecast_controls_open, \
+           rs_exp_minvalue, rs_exp_maxvalue, rs_exp_value, \
+           rs_for_minvalue, rs_for_maxvalue, rs_for_value, \
            file_details, active_accordion_item
 
 
@@ -467,6 +459,7 @@ def update_forecast_slider(df_raw_mx_data):
 
     return rs_for_minvalue, rs_for_maxvalue, rs_for_value
 
+
 @app.callback(
     [
         Output('collapse_forecast_graph', 'is_open'),
@@ -474,19 +467,20 @@ def update_forecast_slider(df_raw_mx_data):
     ],
     [
         Input('rs_forecast_years', 'value'),
-        Input('sto_forecast_table','data')
+        Input('sto_forecast_table', 'data')
     ],
 )
 def update_forecast_controls(value, data):
     if id_of_trigger() is not None:
         open_forecast_graph = False
         if id_of_trigger() == 'sto_forecast_table':
-            open_forecast_graph= True
+            open_forecast_graph = True
         cond = (df_new_wells['Year'] > value[1]) & (df_new_wells['Year'] <= value[1] + years_to_forecast)
         new_wells_table_data = df_new_wells[cond].to_dict('records')
     else:
         raise PreventUpdate
     return open_forecast_graph, new_wells_table_data
+
 
 def id_of_trigger():
     ctx = dash.callback_context
@@ -498,12 +492,10 @@ def id_of_trigger():
     return comp_id
 
 
-
-
 @app.callback(
     [
         Output('acc_forecast', 'active_item'),
-        Output('sto_forecast_table','data'),
+        Output('sto_forecast_table', 'data'),
     ],
     [
         Input('bt_run_forecast', 'n_clicks'),
@@ -530,7 +522,8 @@ def run_forecast_calculation(n_clicks, raw_mx_data, year_range, table_data):
         df_new_wells = df_new_wells.reset_index()
         df_new_wells.to_csv(new_well_list_file, index=False)
 
-        df_filtered_mx_data= df_raw_mx_data[(df_raw_mx_data['Year'] >= min_year) & (df_raw_mx_data['Year'] <= max_year)]
+        df_filtered_mx_data = df_raw_mx_data[
+            (df_raw_mx_data['Year'] >= min_year) & (df_raw_mx_data['Year'] <= max_year)]
 
         if RFconfig.YEARS_TO_TEST > 0:
             mx_test_data = df_raw_mx_data[(df_raw_mx_data['Year'] > max_year)]
@@ -553,10 +546,10 @@ def run_forecast_calculation(n_clicks, raw_mx_data, year_range, table_data):
         df_scenarios.to_csv(file_name, index=False)
 
         json_forecast_data = df_scenarios.to_json(date_format='iso', orient='split')
-        acc_active_item='acc_forecast_results'
+        acc_active_item = 'acc_forecast_results'
     else:
         raise PreventUpdate
-    return  acc_active_item, json_forecast_data
+    return acc_active_item, json_forecast_data
 
 
 @app.callback(
@@ -586,9 +579,9 @@ def update_exp_graph(year_range, graph_value, sw_log_scale, esp_data, mort_data)
                 fig = esp_graphs.operating_absolute(df, year_range, sw_log_scale)
             elif graph_value == 5:  # MTBP Graph
                 fig = esp_graphs.mtbp_graph(df, year_range, sw_log_scale)
-            elif graph_value == 6: # Pull rate graph
+            elif graph_value == 6:  # Pull rate graph
                 fig = esp_graphs.pull_rate_group(df, year_range, sw_log_scale)
-            else: # New Wells
+            else:  # New Wells
                 fig = esp_graphs.new_wells_graph(df, year_range, sw_log_scale)
 
     else:
@@ -623,8 +616,6 @@ def update_for_graph(graph_value, sw_log_scale, forecast_data, year_range):
     else:
         raise PreventUpdate
     return fig
-
-
 
 
 # def load_modal(clk1, clk2, is_open):
